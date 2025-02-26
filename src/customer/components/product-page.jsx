@@ -1,25 +1,22 @@
-import React, { useState, useEffect, useRef } from "react";
-import { ShoppingCart, Search, Heart, Eye, X } from "lucide-react";
-import ProductModal from "./ProductModal"; // Import the modal component
+import React, { useState, useEffect } from "react";
+import { ShoppingCart, Search, Heart, Eye, X, Plus, Minus, Trash } from "lucide-react";
+import Fuse from "fuse.js";
+import ProductModal from "./ProductModal";
 import "../styles/product-page.css";
 
 export default function ProductPage() {
-  // State declarations
   const [categories, setCategories] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [products, setProducts] = useState([]);
+  const [allProducts, setAllProducts] = useState([]);
+  const [filteredProducts, setFilteredProducts] = useState([]);
   const [cart, setCart] = useState(new Map());
   const [wishlist, setWishlist] = useState(new Set());
   const [searchTerm, setSearchTerm] = useState("");
   const [showQuickView, setShowQuickView] = useState(null);
   const [showCart, setShowCart] = useState(false);
-  const [showFloatingCart, setShowFloatingCart] = useState(false); // Define showFloatingCart state
+  const [searchSuggestions, setSearchSuggestions] = useState([]);
 
-  // Ref declarations
-  const headerRef = useRef(null);
-  const categoriesRef = useRef(null);
-
-  // Fetch categories
   useEffect(() => {
     fetch("http://localhost:5000/api/categories")
       .then((res) => res.json())
@@ -34,42 +31,48 @@ export default function ProductPage() {
       .catch((error) => console.error("Error fetching categories:", error));
   }, []);
 
-  // Fetch products based on selected category
+  useEffect(() => {
+    fetch("http://localhost:5000/api/products")
+      .then((res) => res.json())
+      .then((data) => {
+        setAllProducts(data);
+        setFilteredProducts(data);
+      })
+      .catch((error) => console.error("Error fetching products:", error));
+  }, []);
+
   useEffect(() => {
     if (selectedCategory) {
       fetch(`http://localhost:5000/api/products?category=${selectedCategory._id}`)
         .then((res) => res.json())
-        .then((data) => setProducts(data));
+        .then((data) => {
+          setProducts(data);
+          if (!searchTerm) {
+            setFilteredProducts(data);
+          }
+        });
     }
-  }, [selectedCategory]);
+  }, [selectedCategory, searchTerm]);
 
-  // Handle scroll behavior
   useEffect(() => {
-    const handleScroll = () => {
-      const headerHeight = headerRef.current?.offsetHeight || 0;
-      const categoriesHeight = categoriesRef.current?.offsetHeight || 0;
-      setShowFloatingCart(window.scrollY > headerHeight + categoriesHeight);
+    if (allProducts.length === 0) return;
 
-      if (categoriesRef.current) {
-        if (window.scrollY > headerHeight) {
-          categoriesRef.current.style.position = "fixed";
-          categoriesRef.current.style.top = "0";
-          categoriesRef.current.style.left = "0";
-          categoriesRef.current.style.right = "0";
-          categoriesRef.current.style.zIndex = "40";
-          document.body.style.paddingTop = `${categoriesHeight}px`;
-        } else {
-          categoriesRef.current.style.position = "static";
-          document.body.style.paddingTop = "0";
-        }
-      }
-    };
+    if (searchTerm === "") {
+      setFilteredProducts(products);
+      setSearchSuggestions([]);
+    } else {
+      const fuse = new Fuse(allProducts, {
+        keys: ["name", "description", "category.name"],
+        threshold: 0.3,
+      });
 
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+      const result = fuse.search(searchTerm);
+      const suggestions = result.map((res) => res.item);
+      setFilteredProducts(suggestions);
+      setSearchSuggestions(suggestions.slice(0, 5));
+    }
+  }, [searchTerm, allProducts, products]);
 
-  // Add product to cart
   const handleAddToCart = (product) => {
     if (!product.inStock) {
       alert("This product is out of stock!");
@@ -87,7 +90,27 @@ export default function ProductPage() {
     });
   };
 
-  // Toggle product in wishlist
+  const handleUpdateQuantity = (productId, quantity) => {
+    setCart((prevCart) => {
+      const newCart = new Map(prevCart);
+      const item = newCart.get(productId);
+      if (item && quantity > 0) {
+        newCart.set(productId, { ...item, quantity });
+      } else {
+        newCart.delete(productId);
+      }
+      return newCart;
+    });
+  };
+
+  const handleRemoveFromCart = (productId) => {
+    setCart((prevCart) => {
+      const newCart = new Map(prevCart);
+      newCart.delete(productId);
+      return newCart;
+    });
+  };
+
   const toggleWishlist = (productId) => {
     setWishlist((prevWishlist) => {
       const newWishlist = new Set(prevWishlist);
@@ -100,38 +123,40 @@ export default function ProductPage() {
     });
   };
 
-  // Filter products based on search term
-  const filteredProducts = products.filter((product) =>
-    product.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const calculateTotal = () => {
+    let total = 0;
+    Array.from(cart.values()).forEach((item) => {
+      total += item.price * item.quantity;
+    });
+    return total.toFixed(2);
+  };
 
-  // Render product grid
   const renderProductGrid = () => {
     return filteredProducts.map((product) => {
-      // Check if the image is a URL or a local file path
-      const imageUrl = product.image.startsWith("http") // Check if it's a URL
-        ? product.image // Use the URL directly
-        : `http://localhost:5000${product.image}`; // Prepend backend URL for local files
+      const imageUrl = product.image.startsWith("http")
+        ? product.image
+        : `http://localhost:5000${product.image}`;
 
       return (
         <div key={product._id} className="product-card">
           <div className="product-image-container">
             <img
-              src={imageUrl || "/placeholder.png"} // Use the constructed URL
+              src={imageUrl || "/placeholder.png"}
               alt={product.name}
               className="product-image"
               onError={(e) => {
-                e.target.src = "/placeholder.png"; // Fallback if the image fails to load
+                e.target.src = "/placeholder.png";
               }}
             />
             <div className="product-actions">
               <button
                 onClick={() => toggleWishlist(product._id)}
                 className={`wishlist-button ${wishlist.has(product._id) ? "in-wishlist" : ""}`}
+                aria-label={`${wishlist.has(product._id) ? "Remove from" : "Add to"} Wishlist`}
               >
                 <Heart className="action-icon" />
               </button>
-              <button onClick={() => setShowQuickView(product)} className="quickview-button">
+              <button onClick={() => setShowQuickView(product)} className="quickview-button" aria-label="Quick View">
                 <Eye className="action-icon" />
               </button>
             </div>
@@ -139,7 +164,6 @@ export default function ProductPage() {
           <div className="product-info">
             <h3 className="product-name">{product.name}</h3>
             <p className="product-price">${product.price.toFixed(2)}</p>
-            {/* Show "Out of Stock" only if the product is out of stock */}
             {!product.inStock && (
               <p className="out-of-stock">Out of Stock</p>
             )}
@@ -147,8 +171,17 @@ export default function ProductPage() {
               onClick={() => handleAddToCart(product)}
               className="add-to-cart-button"
               disabled={!product.inStock}
+              aria-label="Add to Cart"
             >
               {product.inStock ? "Add to Cart" : "Out of Stock"}
+            </button>
+            <button
+              onClick={() => alert("Buy Now clicked!")}
+              className="buy-now-button"
+              disabled={!product.inStock}
+              aria-label="Buy Now"
+            >
+              Buy Now
             </button>
           </div>
         </div>
@@ -157,64 +190,112 @@ export default function ProductPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#f8f5f1]">
-      {/* Categories Navigation */}
-      <nav ref={categoriesRef} className="categories-nav">
+    <div className="product-page">
+      <header className="header">
         <div className="container">
-          <div className="nav-content">
-            <div className="categories-scroll">
-              {categories.map((category) => (
+          <div className="header-actions">
+            <div className="search-container">
+              <Search className="search-icon" aria-hidden="true" />
+              <input
+                type="search"
+                placeholder="Search products..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="search-input"
+                aria-label="Search Products"
+              />
+              {searchTerm && searchSuggestions.length > 0 && (
+                <ul className="search-suggestions">
+                  {searchSuggestions.map((suggestion) => (
+                    <li key={suggestion._id} onClick={() => setSearchTerm(suggestion.name)}>
+                      {suggestion.name}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+            <button onClick={() => setShowCart(true)} className="cart-button" aria-label="Open Cart">
+              <ShoppingCart className="cart-icon" aria-hidden="true" />
+              {cart.size > 0 && <span className="cart-count" aria-label="Cart Items">{cart.size}</span>}
+            </button>
+          </div>
+        </div>
+      </header>
+
+      <nav className="category-nav">
+        <div className="container">
+          <ul className="category-list">
+            {categories.map((category) => (
+              <li key={category._id} className="category-item">
                 <button
-                  key={category._id}
                   className={`category-button ${selectedCategory?._id === category._id ? "selected" : ""}`}
                   onClick={() => setSelectedCategory(category)}
                 >
-                  <div className="category-image-container">
-                    <img
-                      src={category.image || "/placeholder.svg"}
-                      alt={category.name}
-                      className="category-image"
-                    />
-                  </div>
-                  {category.name}
+                  <img src={category.image || "/placeholder.svg"} alt={category.name} className="category-image" />
+                  <span>{category.name}</span>
                 </button>
-              ))}
-            </div>
-            <div className="search-cart">
-              <div className="search-container">
-                <Search className="search-icon" />
-                <input
-                  type="search"
-                  placeholder="Search products..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="search-input"
-                />
-              </div>
-              <button onClick={() => setShowCart(true)} className="cart-button">
-                <ShoppingCart className="cart-icon" />
-                {cart.size > 0 && <span className="cart-count">{cart.size}</span>}
-              </button>
-            </div>
-          </div>
+              </li>
+            ))}
+          </ul>
         </div>
       </nav>
 
-      {/* Main Content - Product List */}
       <main className="main-content">
         <div className="container">
-          <h2 className="section-title">{selectedCategory?.name || "Products"}</h2>
+          <h2 className="section-title">{selectedCategory?.name || "All Products"}</h2>
           <div className="product-grid">{renderProductGrid()}</div>
         </div>
       </main>
 
-      {/* Product Modal */}
       {showQuickView && (
         <ProductModal
           product={showQuickView}
           onClose={() => setShowQuickView(null)}
           handleAddToCart={handleAddToCart}
         />
+      )}
+
+      {showCart && (
+        <div className="cart-modal">
+          <div className="cart-modal-content">
+            <button onClick={() => setShowCart(false)} className="close-button" aria-label="Close Cart">
+              <X className="close-icon" aria-hidden="true" />
+            </button>
+            <h2>Your Cart</h2>
+            {cart.size === 0 ? (
+              <p className="empty-cart-message">Your cart is empty.</p>
+            ) : (
+              <>
+                {Array.from(cart.values()).map((item) => (
+                  <div key={item._id} className="cart-item">
+                    <img src={item.image || "/placeholder.png"} alt={item.name} className="cart-item-image" />
+                    <div className="cart-item-details">
+                      <h3>{item.name}</h3>
+                      <p>${item.price.toFixed(2)}</p>
+                      <div className="quantity-controls">
+                        <button onClick={() => handleUpdateQuantity(item._id, item.quantity - 1)} aria-label="Decrease Quantity">
+                          <Minus className="quantity-icon" aria-hidden="true" />
+                        </button>
+                        <span aria-label="Quantity">{item.quantity}</span>
+                        <button onClick={() => handleUpdateQuantity(item._id, item.quantity + 1)} aria-label="Increase Quantity">
+                          <Plus className="quantity-icon" aria-hidden="true" />
+                        </button>
+                        <button onClick={() => handleRemoveFromCart(item._id)} className="remove-button" aria-label="Remove from Cart">
+                          <Trash className="remove-icon" aria-hidden="true" />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+                <div className="cart-total">
+                  <h3>Total:</h3>
+                  <p>${calculateTotal()}</p>
+                </div>
+                <button className="checkout-button">Proceed to Checkout</button>
+              </>
+            )}
+          </div>
+        </div>
       )}
     </div>
   );
