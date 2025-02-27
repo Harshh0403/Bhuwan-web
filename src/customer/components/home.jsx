@@ -1,5 +1,7 @@
-import React, { useState, useEffect, useCallback } from "react";
-import { Factory, Award, Users, Target } from "lucide-react";
+"use client"
+
+import { useState, useEffect, useCallback } from "react"
+import { Factory, Award, Users, Target } from "lucide-react"
 import {
   FaFacebook,
   FaTwitter,
@@ -8,21 +10,21 @@ import {
   FaArrowUp,
   FaChevronLeft,
   FaChevronRight,
-} from "react-icons/fa";
-import { motion, useAnimation } from "framer-motion";
-import { useInView } from "react-intersection-observer";
-import Machine_1 from "../../assets/Machine 1.jpg";
-import Machine_2 from "../../assets/Machine 2.jpg";
-import Machine_3 from "../../assets/Machine 3.jpg";
-import IntroVideo from "../../assets/Intro.mp4";
-import Product_1 from "../../assets/White electric.jpg";
-import Product_2 from "../../assets/Fine_circle.jpg";
-import Product_3 from "../../assets/Circle spark.jpg";
-import Product_4 from "../../assets/cap.jpg";
-import Product_5 from "../../assets/circle plate.jpg";
-import Product_6 from "../../assets/Thin plate.jpg";
-import Product_7 from "../../assets/Types_fuse.jpg";
-import Product_8 from "../../assets/grip.jpg";
+} from "react-icons/fa"
+import { motion, useAnimation } from "framer-motion"
+import { useInView } from "react-intersection-observer"
+import Machine_1 from "../../assets/Machine 1.jpg"
+import Machine_2 from "../../assets/Machine 2.jpg"
+import Machine_3 from "../../assets/Machine 3.jpg"
+import IntroVideo from "../../assets/Intro.mp4"
+import Product_1 from "../../assets/White electric.jpg"
+import Product_2 from "../../assets/Fine_circle.jpg"
+import Product_3 from "../../assets/Circle spark.jpg"
+import Product_4 from "../../assets/cap.jpg"
+import Product_5 from "../../assets/circle plate.jpg"
+import Product_6 from "../../assets/Thin plate.jpg"
+import Product_7 from "../../assets/Types_fuse.jpg"
+import Product_8 from "../../assets/grip.jpg"
 
 const products = [
   { name: "MANDREL", image: Product_1 },
@@ -33,19 +35,19 @@ const products = [
   { name: "DRILL JIG", image: Product_6 },
   { name: "COLLETS", image: Product_7 },
   { name: "HYDRAULIC FIXTURES", image: Product_8 },
-];
+]
 
-const machines = [Machine_1, Machine_2, Machine_3];
+const machines = [Machine_1, Machine_2, Machine_3]
 
 const FadeInWhenVisible = ({ children }) => {
-  const controls = useAnimation();
-  const [ref, inView] = useInView();
+  const controls = useAnimation()
+  const [ref, inView] = useInView()
 
   useEffect(() => {
     if (inView) {
-      controls.start("visible");
+      controls.start("visible")
     }
-  }, [controls, inView]);
+  }, [controls, inView])
 
   return (
     <motion.div
@@ -60,41 +62,41 @@ const FadeInWhenVisible = ({ children }) => {
     >
       {children}
     </motion.div>
-  );
-};
+  )
+}
 
 const Home = () => {
-  const [showScrollTop, setShowScrollTop] = useState(false);
-  const [currentMachine, setCurrentMachine] = useState(0);
+  const [showScrollTop, setShowScrollTop] = useState(false)
+  const [currentMachine, setCurrentMachine] = useState(0)
 
   const nextMachine = useCallback(() => {
-    setCurrentMachine((prev) => (prev + 1) % machines.length);
-  }, []);
+    setCurrentMachine((prev) => (prev + 1) % machines.length)
+  }, [])
 
   const prevMachine = useCallback(() => {
-    setCurrentMachine((prev) => (prev - 1 + machines.length) % machines.length);
-  }, []);
+    setCurrentMachine((prev) => (prev - 1 + machines.length) % machines.length)
+  }, [])
 
   useEffect(() => {
     const toggleVisibility = () => {
       if (window.pageYOffset > 300) {
-        setShowScrollTop(true);
+        setShowScrollTop(true)
       } else {
-        setShowScrollTop(false);
+        setShowScrollTop(false)
       }
-    };
+    }
 
-    window.addEventListener("scroll", toggleVisibility);
+    window.addEventListener("scroll", toggleVisibility)
 
-    return () => window.removeEventListener("scroll", toggleVisibility);
-  }, []);
+    return () => window.removeEventListener("scroll", toggleVisibility)
+  }, [])
 
   const scrollToTop = () => {
     window.scrollTo({
       top: 0,
       behavior: "smooth",
-    });
-  };
+    })
+  }
 
   return (
     <div className="w-full">
@@ -129,25 +131,24 @@ const Home = () => {
         <section className="py-16 bg-gradient-to-b from-gray-50 to-white">
           <div className="container mx-auto px-4">
             <div className="text-center mb-12">
-              <h2 className="text-3xl font-bold text-gray-900 mb-4">
-                The Best Manufacturing Solution
-              </h2>
-              <div className="w-24 h-1 bg-blue-500 mx-auto"></div>
+              <h2 className="text-3xl font-bold text-gray-900 mb-4">The Best Manufacturing Solution</h2>
+              <div className="w-24 h-1 bg-[#234F1E] mx-auto"></div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center max-w-6xl mx-auto">
               <div className="space-y-6">
                 <p className="text-gray-700 leading-relaxed">
-                  Bhuwan enterprise always thinks about customers' benefits, we provide the best solution according to the customer's budget and beyond their expectations.
+                  Bhuwan enterprise always thinks about customers' benefits, we provide the best solution according to
+                  the customer's budget and beyond their expectations.
                 </p>
                 <div className="grid grid-cols-2 gap-6">
                   <div className="p-6 bg-white rounded-lg shadow-lg transform hover:-translate-y-1 transition-transform duration-300">
-                    <Factory className="w-10 h-10 text-blue-500 mb-4" />
+                    <Factory className="w-10 h-10 text-[#234F1E] mb-4" />
                     <h3 className="text-xl font-semibold mb-2">Manufacturing</h3>
                     <p className="text-gray-600 text-sm">Expert solutions in warp knitting machinery</p>
                   </div>
                   <div className="p-6 bg-white rounded-lg shadow-lg transform hover:-translate-y-1 transition-transform duration-300">
-                    <Award className="w-10 h-10 text-blue-500 mb-4" />
+                    <Award className="w-10 h-10 text-[#234F1E] mb-4" />
                     <h3 className="text-xl font-semibold mb-2">Experience</h3>
                     <p className="text-gray-600 text-sm">17 years of industry expertise</p>
                   </div>
@@ -157,18 +158,21 @@ const Home = () => {
               <div className="space-y-6">
                 <div className="grid grid-cols-2 gap-6">
                   <div className="p-6 bg-white rounded-lg shadow-lg transform hover:-translate-y-1 transition-transform duration-300">
-                    <Users className="w-10 h-10 text-blue-500 mb-4" />
+                    <Users className="w-10 h-10 text-[#234F1E] mb-4" />
                     <h3 className="text-xl font-semibold mb-2">Expert Team</h3>
                     <p className="text-gray-600 text-sm">Experienced professionals dedicated to quality</p>
                   </div>
                   <div className="p-6 bg-white rounded-lg shadow-lg transform hover:-translate-y-1 transition-transform duration-300">
-                    <Target className="w-10 h-10 text-blue-500 mb-4" />
+                    <Target className="w-10 h-10 text-[#234F1E] mb-4" />
                     <h3 className="text-xl font-semibold mb-2">Global Reach</h3>
                     <p className="text-gray-600 text-sm">Meeting diverse needs worldwide</p>
                   </div>
                 </div>
                 <p className="text-gray-700 leading-relaxed">
-                  Bhuwan enterprise is a trusted enterprise in the warp knitting machinery, dedicated to delivering the best mechanism solutions. Our expertise in the knitting machinery field ensures our products meet the highest standards of quality, reliability, and performance. With a dedicated team of experts, we're committed to delivering excellence in every project.
+                  Bhuwan enterprise is a trusted enterprise in the warp knitting machinery, dedicated to delivering the
+                  best mechanism solutions. Our expertise in the knitting machinery field ensures our products meet the
+                  highest standards of quality, reliability, and performance. With a dedicated team of experts, we're
+                  committed to delivering excellence in every project.
                 </p>
               </div>
             </div>
@@ -240,34 +244,34 @@ const Home = () => {
         <FadeInWhenVisible>
           <section className="py-12 bg-blue-50">
             <div className="max-w-xl mx-auto px-4">
-              <h2 className="text-3xl font-bold text-center mb-6 text-blue-600">Get in touch</h2>
+              <h2 className="text-3xl font-bold text-center mb-6 text-[#234F1E]">Get in touch</h2>
               <form className="space-y-4">
                 <div>
                   <input
                     type="text"
                     placeholder="Name"
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#234F1E] transition duration-300"
                   />
                 </div>
                 <div>
                   <input
                     type="email"
                     placeholder="Email"
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#234F1E] transition duration-300"
                   />
                 </div>
                 <div>
                   <textarea
                     placeholder="Message"
                     rows={4}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#234F1E] transition duration-300"
                   />
                 </div>
                 <motion.button
                   type="submit"
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
-                  className="w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 transition duration-300"
+                  className="w-full bg-[#234F1E] text-white py-2 rounded-lg hover:bg-[#1a3b16] transition duration-300"
                 >
                   Send Message
                 </motion.button>
@@ -299,22 +303,34 @@ const Home = () => {
                 <h3 className="text-base font-semibold text-white">PAGES</h3>
                 <ul className="space-y-1 text-sm">
                   <li>
-                    <button onClick={() => window.location.href = '/'} className="hover:underline transition duration-300">
+                    <button
+                      onClick={() => (window.location.href = "/")}
+                      className="hover:underline transition duration-300"
+                    >
                       Home
                     </button>
                   </li>
                   <li>
-                    <button onClick={() => window.location.href = '/about'} className="hover:underline transition duration-300">
+                    <button
+                      onClick={() => (window.location.href = "/about")}
+                      className="hover:underline transition duration-300"
+                    >
                       About Us
                     </button>
                   </li>
                   <li>
-                    <button onClick={() => window.location.href = '/products'} className="hover:underline transition duration-300">
+                    <button
+                      onClick={() => (window.location.href = "/products")}
+                      className="hover:underline transition duration-300"
+                    >
                       Products
                     </button>
                   </li>
                   <li>
-                    <button onClick={() => window.location.href = '/contact'} className="hover:underline transition duration-300">
+                    <button
+                      onClick={() => (window.location.href = "/contact")}
+                      className="hover:underline transition duration-300"
+                    >
                       Contact Us
                     </button>
                   </li>
@@ -333,7 +349,10 @@ const Home = () => {
               {/* Section 4 */}
               <div className="space-y-3">
                 <h3 className="text-base font-semibold text-white">ADDRESS</h3>
-                <p className="text-sm"> Shed No.5, Plot No. 272, Parth Ind. Estate, Damanganga Industrial Park, Karvad Vapi- 396193, GUJARAT</p>
+                <p className="text-sm">
+                  {" "}
+                  Shed No.5, Plot No. 272, Parth Ind. Estate, Damanganga Industrial Park, Karvad Vapi- 396193, GUJARAT
+                </p>
               </div>
             </div>
 
@@ -368,13 +387,14 @@ const Home = () => {
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           onClick={scrollToTop}
-          className="fixed bottom-5 right-5 bg-blue-500 text-white p-2 rounded-full shadow-lg hover:bg-blue-600 transition duration-300"
+          className="fixed bottom-5 right-5 bg-[#234F1E] text-white p-2 rounded-full shadow-lg hover:bg-[#1a3b16] transition duration-300"
         >
           <FaArrowUp size={16} />
         </motion.button>
       )}
     </div>
-  );
-};
+  )
+}
 
-export default Home;
+export default Home
+

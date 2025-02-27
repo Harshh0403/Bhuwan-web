@@ -82,7 +82,7 @@ export default function Navbar() {
         className="lg:hidden"
       >
         <DialogBackdrop className="fixed inset-0 bg-black/25" />
-        <DialogPanel className="fixed top-0 left-0 w-full max-w-xs bg-white p-6 shadow-lg">
+        <DialogPanel className="fixed inset-y-0 left-0 w-full max-w-xs bg-white p-6 shadow-lg">
           <div className="flex justify-between items-center">
             <Link to="/" className="flex items-center">
               <img

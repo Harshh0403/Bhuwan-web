@@ -133,6 +133,11 @@ export default function ProductPage({ cart, setCart }) {
 
   const renderProductGrid = () => {
     return filteredProducts.map((product) => {
+      if (!product) {
+        console.error("Undefined product in filteredProducts");
+        return null;
+      }
+
       const imageUrl = product.image.startsWith("http")
         ? product.image
         : `http://localhost:5000${product.image}`;
@@ -228,11 +233,17 @@ export default function ProductPage({ cart, setCart }) {
               />
               {searchTerm && searchSuggestions.length > 0 && (
                 <ul className="search-suggestions">
-                  {searchSuggestions.map((suggestion) => (
-                    <li key={suggestion._id} onClick={() => setSearchTerm(suggestion.name)}>
-                      {suggestion.name}
-                    </li>
-                  ))}
+                  {searchSuggestions.map((suggestion) => {
+                    if (!suggestion) {
+                      console.error("Undefined suggestion in searchSuggestions");
+                      return null;
+                    }
+                    return (
+                      <li key={suggestion._id} onClick={() => setSearchTerm(suggestion.name)}>
+                        {suggestion.name}
+                      </li>
+                    );
+                  })}
                 </ul>
               )}
             </div>

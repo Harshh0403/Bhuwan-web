@@ -25,7 +25,7 @@ const upload = multer({
   limits: { fileSize: 5 * 1024 * 1024 }, // Limit file size to 5MB
 });
 
-// Add a New Product
+// ✅ **Add a New Product** (Fixed Category Validation)
 router.post("/", upload.single("image"), async (req, res) => {
   try {
     if (!req.file && !req.body.imageUrl) {
@@ -34,7 +34,7 @@ router.post("/", upload.single("image"), async (req, res) => {
 
     const imageUrl = req.file ? `/uploads/${req.file.filename}` : req.body.imageUrl;
 
-    // Category Validation
+    // ✅ Category Validation
     if (!req.body.category || !mongoose.Types.ObjectId.isValid(req.body.category)) {
       return res.status(400).json({ message: "Invalid category ID format" });
     }
@@ -115,7 +115,7 @@ router.get("/", async (req, res) => {
   }
 });
 
-// Delete a Product
+// ✅ **Delete a Product**
 router.delete("/:id", async (req, res) => {
   try {
     const { id } = req.params;
@@ -127,7 +127,7 @@ router.delete("/:id", async (req, res) => {
 
     const deletedProduct = await Product.findByIdAndDelete(id);
     if (!deletedProduct) {
-      return res.status(404).json({ message: "Product not found" });
+      return res.status(404).json({ message: "Product not found" });git s
     }
 
     res.json({ message: "Product deleted successfully", deletedProduct });

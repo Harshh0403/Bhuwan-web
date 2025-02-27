@@ -1,8 +1,7 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import emailjs from '@emailjs/browser';
 import { FaFacebook, FaTwitter, FaInstagram } from "react-icons/fa";
-
-
+import QR from "../../assets/QR Code.jpg";
 
 const Contact = () => {
   const [selectedFile, setSelectedFile] = useState(null);
@@ -73,6 +72,10 @@ const Contact = () => {
     }
   };
 
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="bg-gray-100 py-4">
@@ -90,7 +93,7 @@ const Contact = () => {
       <div className="container mx-auto px-4 py-12">
         <h1 className="text-4xl font-bold text-gray-800 mb-8">Contact Our Sales Team</h1>
         <p className="text-gray-600 mb-12">
-          If you have any queries about our machines, Please be free to let us know. We will be getting back to you
+          If you have any queries about our machines, please feel free to let us know. We will get back to you
           within 12 hours.
         </p>
 
@@ -188,7 +191,7 @@ const Contact = () => {
 
           <div className="space-y-8">
             <div>
-              <h2 className="text-xl font-semibold text-gray-800 mb-4">E-mail</h2>
+              <h2 className="text-xl font-semibold text-gray-800 mb-4">Email</h2>
               <a
                 href="mailto:bhuwanenterprise@yahoo.com"
                 className="text-blue-600 hover:text-blue-800 transition-colors duration-200"
@@ -241,13 +244,13 @@ const Contact = () => {
             <div>
               <h2 className="text-xl font-semibold text-gray-800 mb-4">Instant Message</h2>
               <p className="text-gray-600 mb-4">
-                You can also scan below instant messenger link to reach us for quick communication.
+                You can also scan the instant messenger link below to reach us for quick communication.
               </p>
               <div className="text-center max-w-[200px]">
                 <div className="bg-white p-4 rounded-lg shadow-md mb-2">
-                  <img src="/Qr.png" alt="WhatsApp QR" className="w-full" />
+                  <img src={QR} alt="WhatsApp QR" className="w-full" />
                 </div>
-                <p className="text-gray-600">Whatsapp</p>
+                <p className="text-gray-600">WhatsApp</p>
               </div>
             </div>
           </div>

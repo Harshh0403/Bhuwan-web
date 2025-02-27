@@ -1,6 +1,8 @@
 "use client";
 import { motion } from "framer-motion";
 import { Factory, Award, Users, Target, ChevronRight, Clock, Globe, PenToolIcon as Tool } from "lucide-react";
+import Machine_1 from "../../assets/Machine 1.jpg";
+import { Link } from 'react-router-dom';
 
 export default function About() {
   return (
@@ -74,7 +76,7 @@ export default function About() {
               className="relative"
             >
               <img
-                src="" // Add the image source URL here
+                src={Machine_1}
                 alt="Our Facility"
                 className="rounded-lg shadow-xl w-full h-[400px] object-cover"
               />
@@ -194,13 +196,15 @@ export default function About() {
       <section className="py-20 bg-gray-900 text-white">
         <div className="container mx-auto px-4 text-center">
           <h2 className="text-3xl font-bold mb-8">Ready to Start Your Project?</h2>
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            className="inline-flex items-center px-8 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors duration-300"
-          >
-            Contact Us <ChevronRight className="ml-2 w-5 h-5" />
-          </motion.button>
+          <Link to="/contact">
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="inline-flex items-center px-8 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors duration-300"
+            >
+              Contact Us <ChevronRight className="ml-2 w-5 h-5" />
+            </motion.button>
+          </Link>
         </div>
       </section>
     </div>
