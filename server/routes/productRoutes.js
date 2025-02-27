@@ -4,7 +4,7 @@ const mongoose = require("mongoose");
 const Product = require("../models/product");
 const router = express.Router();
 
-// ✅ Configure Multer for Image Uploads
+// Configure Multer for Image Uploads
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, "uploads/"); // Define upload directory
@@ -25,7 +25,7 @@ const upload = multer({
   limits: { fileSize: 5 * 1024 * 1024 }, // Limit file size to 5MB
 });
 
-// ✅ **Add a New Product** (Fixed Category Validation)
+// Add a New Product
 router.post("/", upload.single("image"), async (req, res) => {
   try {
     if (!req.file && !req.body.imageUrl) {
@@ -34,7 +34,7 @@ router.post("/", upload.single("image"), async (req, res) => {
 
     const imageUrl = req.file ? `/uploads/${req.file.filename}` : req.body.imageUrl;
 
-    // ✅ Category Validation
+    // Category Validation
     if (!req.body.category || !mongoose.Types.ObjectId.isValid(req.body.category)) {
       return res.status(400).json({ message: "Invalid category ID format" });
     }
@@ -57,7 +57,45 @@ router.post("/", upload.single("image"), async (req, res) => {
   }
 });
 
-// ✅ **Get Products (With Optional Category Filtering)**
+// Update a Product
+router.put("/:id", upload.single("image"), async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ message: "Invalid product ID format" });
+    }
+
+    const updateData = {
+      name: req.body.name,
+      price: req.body.price,
+      description: req.body.description,
+      inStock: req.body.inStock === "true",
+      category: req.body.category,
+    };
+
+    if (req.file) {
+      updateData.image = `/uploads/${req.file.filename}`;
+    } else if (req.body.imageUrl) {
+      updateData.image = req.body.imageUrl;
+    }
+
+    console.log("Update data:", updateData); // Log the update data
+
+    const updatedProduct = await Product.findByIdAndUpdate(id, updateData, { new: true });
+
+    if (!updatedProduct) {
+      return res.status(404).json({ message: "Product not found" });
+    }
+
+    res.json(updatedProduct);
+  } catch (err) {
+    console.error("Error updating product:", err);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+});
+
+// Get Products (With Optional Category Filtering)
 router.get("/", async (req, res) => {
   try {
     let query = {};
@@ -77,7 +115,7 @@ router.get("/", async (req, res) => {
   }
 });
 
-// ✅ **Delete a Product**
+// Delete a Product
 router.delete("/:id", async (req, res) => {
   try {
     const { id } = req.params;

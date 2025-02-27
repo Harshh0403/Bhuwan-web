@@ -137,8 +137,11 @@ export default function AdminPanel() {
     image: "",
     imageFile: null,
   });
+  const [editingCategory, setEditingCategory] = useState(null);
+  const [editingProduct, setEditingProduct] = useState(null);
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState("categories");
+  const [searchTerm, setSearchTerm] = useState("");
   const [toast, setToast] = useState(null);
 
   const ADMIN_CREDENTIALS = {
@@ -246,6 +249,56 @@ export default function AdminPanel() {
     }
   };
 
+  const handleEditCategory = (category) => {
+    setEditingCategory(category);
+    setCategoryFormData({
+      name: category.name,
+      image: category.image,
+      imageFile: null,
+    });
+  };
+
+  const handleUpdateCategory = async () => {
+    if (editingCategory && categoryFormData.name.trim()) {
+      setLoading(true);
+      try {
+        const formData = new FormData();
+        formData.append("name", categoryFormData.name);
+        if (categoryFormData.imageFile) {
+          formData.append("image", categoryFormData.imageFile);
+        } else if (categoryFormData.image) {
+          formData.append("imageUrl", categoryFormData.image);
+        }
+
+        const response = await axios.put(
+          `http://localhost:5000/api/categories/${editingCategory._id}`,
+          formData,
+          {
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+          }
+        );
+
+        setCategories(
+          categories.map((category) =>
+            category._id === editingCategory._id ? response.data : category
+          )
+        );
+        setEditingCategory(null);
+        setCategoryFormData({ name: "", image: "", imageFile: null });
+        showToast("Category updated successfully!");
+      } catch (err) {
+        console.error("Error updating category:", err);
+        showToast("Failed to update category.", "error");
+      } finally {
+        setLoading(false);
+      }
+    } else {
+      showToast("Please enter a category name.", "error");
+    }
+  };
+
   const handleDeleteCategory = async (id) => {
     if (window.confirm("Are you sure you want to delete this category?")) {
       setLoading(true);
@@ -296,6 +349,65 @@ export default function AdminPanel() {
     }
   };
 
+  const handleEditProduct = (product) => {
+    setEditingProduct(product);
+    setFormData({
+      name: product.name,
+      price: product.price,
+      description: product.description,
+      image: product.image,
+      imagePreview: null,
+      inStock: product.inStock,
+      category: product.category._id,
+    });
+  };
+
+  const handleUpdateProduct = async () => {
+    if (editingProduct && formData.name.trim()) {
+      setLoading(true);
+      try {
+        const productData = new FormData();
+        productData.append("name", formData.name);
+        productData.append("price", formData.price);
+        productData.append("description", formData.description);
+        productData.append("inStock", formData.inStock);
+        productData.append("category", formData.category);
+
+        if (formData.image instanceof File) {
+          productData.append("image", formData.image);
+        } else if (typeof formData.image === "string" && formData.image.trim() !== "") {
+          productData.append("imageUrl", formData.image);
+        }
+
+        const response = await axios.put(
+          `http://localhost:5000/api/products/${editingProduct._id}`,
+          productData,
+          {
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+          }
+        );
+
+        setProducts(
+          products.map((product) =>
+            product._id === editingProduct._id ? response.data : product
+          )
+        );
+        setEditingProduct(null);
+        resetForm();
+        showToast("Product updated successfully!");
+      } catch (err) {
+        console.error("Error updating product:", err);
+        showToast("Failed to update product.", "error");
+      } finally {
+        setLoading(false);
+      }
+    } else {
+      showToast("Please enter a product name.", "error");
+    }
+  };
+
   const handleDeleteProduct = async (id) => {
     if (window.confirm("Are you sure you want to delete this product?")) {
       setLoading(true);
@@ -341,6 +453,18 @@ export default function AdminPanel() {
       category: "",
     });
   };
+
+  const handleSearch = (e) => {
+    setSearchTerm(e.target.value);
+  };
+
+  const filteredProducts = products.filter(product =>
+    product.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const filteredCategories = categories.filter(category =>
+    category.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   if (!isAuthenticated) {
     return (
@@ -390,6 +514,16 @@ export default function AdminPanel() {
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-3xl font-bold">Admin Panel</h1>
           <Button onClick={handleLogout}>Logout</Button>
+        </div>
+
+        <div className="mb-4">
+          <Input
+            type="text"
+            placeholder="Search..."
+            value={searchTerm}
+            onChange={handleSearch}
+            className="w-full max-w-lg"
+          />
         </div>
 
         <Tabs>
@@ -448,14 +582,14 @@ export default function AdminPanel() {
                       />
                     </div>
                   )}
-                  <Button onClick={handleAddCategory} disabled={loading}>
-                    {loading ? "Adding..." : "Add Category"}
+                  <Button onClick={editingCategory ? handleUpdateCategory : handleAddCategory} disabled={loading}>
+                    {loading ? (editingCategory ? "Updating..." : "Adding...") : (editingCategory ? "Update Category" : "Add Category")}
                   </Button>
                 </div>
                 <div className="mt-8">
                   <h3 className="text-lg font-semibold mb-4">Existing Categories</h3>
                   <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                    {categories.map((category) => (
+                    {filteredCategories.map((category) => (
                       <Card key={category._id}>
                         <CardContent className="p-4">
                           <div className="flex items-center space-x-4">
@@ -473,6 +607,14 @@ export default function AdminPanel() {
                                 disabled={loading}
                               >
                                 Delete
+                              </Button>
+                              <Button
+                                variant="secondary"
+                                size="sm"
+                                onClick={() => handleEditCategory(category)}
+                                disabled={loading}
+                              >
+                                Edit
                               </Button>
                             </div>
                           </div>
@@ -572,8 +714,8 @@ export default function AdminPanel() {
                     <Label htmlFor="productInStock">In Stock</Label>
                   </div>
                   <div className="flex space-x-4">
-                    <Button onClick={handleAddProduct} disabled={loading}>
-                      {loading ? "Adding..." : "Add Product"}
+                    <Button onClick={editingProduct ? handleUpdateProduct : handleAddProduct} disabled={loading}>
+                      {loading ? (editingProduct ? "Updating..." : "Adding...") : (editingProduct ? "Update Product" : "Add Product")}
                     </Button>
                     <Button variant="secondary" onClick={resetForm}>
                       Reset
@@ -584,7 +726,7 @@ export default function AdminPanel() {
                 <div className="mt-8">
                   <h3 className="text-lg font-semibold mb-4">Existing Products</h3>
                   <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                    {products.map((product) => (
+                    {filteredProducts.map((product) => (
                       <Card key={product._id}>
                         <CardContent className="p-4">
                           <div className="space-y-2">
@@ -612,6 +754,14 @@ export default function AdminPanel() {
                                 disabled={loading}
                               >
                                 Delete
+                              </Button>
+                              <Button
+                                variant="secondary"
+                                size="sm"
+                                onClick={() => handleEditProduct(product)}
+                                disabled={loading}
+                              >
+                                Edit
                               </Button>
                             </div>
                           </div>

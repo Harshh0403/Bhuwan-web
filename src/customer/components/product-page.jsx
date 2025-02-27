@@ -3,14 +3,14 @@ import { ShoppingCart, Search, Heart, Eye, X, Plus, Minus, Trash } from "lucide-
 import Fuse from "fuse.js";
 import ProductModal from "./ProductModal";
 import "../styles/product-page.css";
+import { Link } from 'react-router-dom';
 
-export default function ProductPage() {
+export default function ProductPage({ cart, setCart }) {
   const [categories, setCategories] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [products, setProducts] = useState([]);
   const [allProducts, setAllProducts] = useState([]);
   const [filteredProducts, setFilteredProducts] = useState([]);
-  const [cart, setCart] = useState(new Map());
   const [wishlist, setWishlist] = useState(new Set());
   const [searchTerm, setSearchTerm] = useState("");
   const [showQuickView, setShowQuickView] = useState(null);
@@ -138,51 +138,73 @@ export default function ProductPage() {
         : `http://localhost:5000${product.image}`;
 
       return (
-        <div key={product._id} className="product-card">
-          <div className="product-image-container">
-            <img
-              src={imageUrl || "/placeholder.png"}
-              alt={product.name}
-              className="product-image"
-              onError={(e) => {
-                e.target.src = "/placeholder.png";
-              }}
-            />
-            <div className="product-actions">
+        <div
+          key={product._id}
+          className="product-card-wrapper"
+          onClick={() => setShowQuickView(product)}
+        >
+          <div className="product-card">
+            <div className="product-image-container">
+              <img
+                src={imageUrl || "/placeholder.png"}
+                alt={product.name}
+                className="product-image"
+                onError={(e) => {
+                  e.target.src = "/placeholder.png";
+                }}
+              />
+              <div className="product-actions">
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    toggleWishlist(product._id);
+                  }}
+                  className={`wishlist-button ${wishlist.has(product._id) ? "in-wishlist" : ""}`}
+                  aria-label={`${wishlist.has(product._id) ? "Remove from" : "Add to"} Wishlist`}
+                >
+                  <Heart className="action-icon" />
+                </button>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setShowQuickView(product);
+                  }}
+                  className="quickview-button"
+                  aria-label="Quick View"
+                >
+                  <Eye className="action-icon" />
+                </button>
+              </div>
+            </div>
+            <div className="product-info">
+              <h3 className="product-name">{product.name}</h3>
+              <p className="product-price">${product.price.toFixed(2)}</p>
+              {!product.inStock && (
+                <p className="out-of-stock">Out of Stock</p>
+              )}
               <button
-                onClick={() => toggleWishlist(product._id)}
-                className={`wishlist-button ${wishlist.has(product._id) ? "in-wishlist" : ""}`}
-                aria-label={`${wishlist.has(product._id) ? "Remove from" : "Add to"} Wishlist`}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleAddToCart(product);
+                }}
+                className="add-to-cart-button"
+                disabled={!product.inStock}
+                aria-label="Add to Cart"
               >
-                <Heart className="action-icon" />
+                {product.inStock ? "Add to Cart" : "Out of Stock"}
               </button>
-              <button onClick={() => setShowQuickView(product)} className="quickview-button" aria-label="Quick View">
-                <Eye className="action-icon" />
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  alert("Buy Now clicked!");
+                }}
+                className="buy-now-button"
+                disabled={!product.inStock}
+                aria-label="Buy Now"
+              >
+                Buy Now
               </button>
             </div>
-          </div>
-          <div className="product-info">
-            <h3 className="product-name">{product.name}</h3>
-            <p className="product-price">${product.price.toFixed(2)}</p>
-            {!product.inStock && (
-              <p className="out-of-stock">Out of Stock</p>
-            )}
-            <button
-              onClick={() => handleAddToCart(product)}
-              className="add-to-cart-button"
-              disabled={!product.inStock}
-              aria-label="Add to Cart"
-            >
-              {product.inStock ? "Add to Cart" : "Out of Stock"}
-            </button>
-            <button
-              onClick={() => alert("Buy Now clicked!")}
-              className="buy-now-button"
-              disabled={!product.inStock}
-              aria-label="Buy Now"
-            >
-              Buy Now
-            </button>
           </div>
         </div>
       );
@@ -291,7 +313,9 @@ export default function ProductPage() {
                   <h3>Total:</h3>
                   <p>${calculateTotal()}</p>
                 </div>
-                <button className="checkout-button">Proceed to Checkout</button>
+                <Link to="/checkout">
+                  <button className="checkout-button">Proceed to Checkout</button>
+                </Link>
               </>
             )}
           </div>

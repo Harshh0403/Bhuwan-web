@@ -1,7 +1,9 @@
 .admin-panel {
-  font-family: Arial, sans-serif;
-  background-color: #f9f9f9;
+  font-family: 'Arial', sans-serif;
+  background-color: #f4f4f9;
   min-height: 100vh;
+  padding: 20px;
+  color: #333;
 }
 
 .admin-panel h1,
@@ -9,6 +11,7 @@
 .admin-panel h3,
 .admin-panel h4 {
   color: #333;
+  margin-bottom: 15px;
 }
 
 .admin-panel input,
@@ -21,29 +24,32 @@
 
 .admin-panel button {
   cursor: pointer;
-  background-color: #4caf50;
+  background-color: #007bff;
   color: white;
   border: none;
   border-radius: 5px;
-  transition: background-color 0.3s;
+  padding: 10px 20px;
+  transition: background-color 0.3s, transform 0.2s;
 }
 
 .admin-panel button:hover {
-  background-color: #45a049;
+  background-color: #0056b3;
+  transform: scale(1.05);
 }
 
 .admin-panel button:focus {
   outline: none;
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.5);
 }
 
 .admin-panel button[variant="destructive"],
 .admin-panel button.delete-btn {
-  background-color: #f44336;
+  background-color: #dc3545;
 }
 
 .admin-panel button[variant="destructive"]:hover,
 .admin-panel button.delete-btn:hover {
-  background-color: #d32f2f;
+  background-color: #c82333;
 }
 
 .admin-panel input[type="text"],
@@ -55,7 +61,7 @@
   padding: 10px;
   border: 1px solid #ccc;
   border-radius: 5px;
-  transition: border-color 0.3s;
+  transition: border-color 0.3s, box-shadow 0.3s;
 }
 
 .admin-panel input[type="text"]:focus,
@@ -64,7 +70,8 @@
 .admin-panel textarea:focus,
 .admin-panel select:focus {
   outline: none;
-  border-color: #4caf50;
+  border-color: #007bff;
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
 }
 
 .admin-panel input[type="checkbox"] {
@@ -95,19 +102,19 @@
 
 .admin-panel .tab {
   flex: 1;
-  padding: 10px;
+  padding: 15px;
   text-align: center;
   cursor: pointer;
-  background-color: #f0f0f0;
+  background-color: #f8f9fa;
   transition: background-color 0.3s;
 }
 
 .admin-panel .tab:hover {
-  background-color: #e0e0e0;
+  background-color: #e9ecef;
 }
 
 .admin-panel .tab[data-state="active"] {
-  background-color: #4caf50;
+  background-color: #007bff;
   color: white;
 }
 
@@ -168,6 +175,12 @@
   margin-bottom: 10px;
   border-radius: 5px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s;
+}
+
+.admin-panel .product-item:hover,
+.admin-panel .category-item:hover {
+  transform: scale(1.02);
 }
 
 .admin-panel .product-image,
@@ -218,7 +231,7 @@
 }
 
 .admin-panel input:checked + .slider {
-  background-color: #4caf50;
+  background-color: #28a745;
 }
 
 .admin-panel input:checked + .slider:before {
@@ -267,13 +280,61 @@
   color: white;
   font-weight: bold;
   z-index: 1000;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 .admin-panel .toast-success {
-  background-color: #4caf50;
+  background-color: #28a745;
 }
 
 .admin-panel .toast-error {
-  background-color: #f44336;
+  background-color: #dc3545;
 }
 
+/* Additional Styles */
+.admin-panel .container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.admin-panel .header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.admin-panel .header h1 {
+  font-size: 2rem;
+}
+
+.admin-panel .header button {
+  margin-left: auto;
+}
+
+.admin-panel .form-group {
+  margin-bottom: 15px;
+}
+
+.admin-panel .form-group label {
+  display: block;
+  margin-bottom: 5px;
+}
+
+.admin-panel .form-group input,
+.admin-panel .form-group textarea,
+.admin-panel .form-group select {
+  width: 100%;
+}
+
+.admin-panel .form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+/* Search Bar */
+.admin-panel .search-bar {
+  margin-bottom: 20px;
+}

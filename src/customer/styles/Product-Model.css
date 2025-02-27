@@ -129,3 +129,46 @@
     width: 100%;
   }
 }
+
+
+
+
+/* Ensure the category list uses flexbox for layout */
+.category-list {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center; /* Center-align the items */
+  gap: 10px; /* Adjust the gap between items as needed */
+}
+
+/* Style each category item to take up 1/7th of the container width */
+.category-item {
+  flex: 1 1 calc(14.2857% - 10px); /* 100% / 7 items - gap */
+  box-sizing: border-box;
+  text-align: center;
+}
+
+/* Style the category button for better appearance */
+.category-button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  background-color: #f9f9f9;
+  transition: background-color 0.3s;
+}
+
+/* Add hover effect for the category button */
+.category-button:hover {
+  background-color: #e9e9e9;
+}
+
+/* Style the category image */
+.category-image {
+  max-width: 100%;
+  height: auto;
+  margin-bottom: 5px;
+}

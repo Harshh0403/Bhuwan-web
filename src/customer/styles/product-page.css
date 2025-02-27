@@ -64,6 +64,7 @@ body {
 
 .cart-button {
   position: relative;
+  margin-left: 80%;
   background: none;
   border: none;
   cursor: pointer;
