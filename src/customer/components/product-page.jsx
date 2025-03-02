@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { ShoppingCart, Search, Heart, Eye, X, Plus, Minus, Trash } from "lucide-react";
+import { ShoppingCart, Heart, Eye, X, Plus, Minus, Trash } from "lucide-react";
 import Fuse from "fuse.js";
 import ProductModal from "./ProductModal";
+import SearchBar from "./SearchBar"; // Import the SearchBar component
 import "../styles/product-page.css";
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 export default function ProductPage({ cart, setCart }) {
   const [categories, setCategories] = useState([]);
@@ -16,6 +17,8 @@ export default function ProductPage({ cart, setCart }) {
   const [showQuickView, setShowQuickView] = useState(null);
   const [showCart, setShowCart] = useState(false);
   const [searchSuggestions, setSearchSuggestions] = useState([]);
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetch("http://localhost:5000/api/categories")
@@ -131,13 +134,13 @@ export default function ProductPage({ cart, setCart }) {
     return total.toFixed(2);
   };
 
+  const handleBuyNow = (product) => {
+    handleAddToCart(product);
+    navigate('/checkout');
+  };
+
   const renderProductGrid = () => {
     return filteredProducts.map((product) => {
-      if (!product) {
-        console.error("Undefined product in filteredProducts");
-        return null;
-      }
-
       const imageUrl = product.image.startsWith("http")
         ? product.image
         : `http://localhost:5000${product.image}`;
@@ -201,7 +204,7 @@ export default function ProductPage({ cart, setCart }) {
               <button
                 onClick={(e) => {
                   e.stopPropagation();
-                  alert("Buy Now clicked!");
+                  handleBuyNow(product);
                 }}
                 className="buy-now-button"
                 disabled={!product.inStock}
@@ -221,32 +224,7 @@ export default function ProductPage({ cart, setCart }) {
       <header className="header">
         <div className="container">
           <div className="header-actions">
-            <div className="search-container">
-              <Search className="search-icon" aria-hidden="true" />
-              <input
-                type="search"
-                placeholder="Search products..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="search-input"
-                aria-label="Search Products"
-              />
-              {searchTerm && searchSuggestions.length > 0 && (
-                <ul className="search-suggestions">
-                  {searchSuggestions.map((suggestion) => {
-                    if (!suggestion) {
-                      console.error("Undefined suggestion in searchSuggestions");
-                      return null;
-                    }
-                    return (
-                      <li key={suggestion._id} onClick={() => setSearchTerm(suggestion.name)}>
-                        {suggestion.name}
-                      </li>
-                    );
-                  })}
-                </ul>
-              )}
-            </div>
+            <SearchBar searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
             <button onClick={() => setShowCart(true)} className="cart-button" aria-label="Open Cart">
               <ShoppingCart className="cart-icon" aria-hidden="true" />
               {cart.size > 0 && <span className="cart-count" aria-label="Cart Items">{cart.size}</span>}

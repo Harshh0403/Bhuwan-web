@@ -1,9 +1,9 @@
 import React, { useState } from "react";
-import './CheckoutPage.css'; // Import the CSS file
-import PropTypes from 'prop-types';
+import "./CheckoutPage.css"; // Import the CSS file
+import PropTypes from "prop-types";
 import { Plus, Minus, Trash } from "lucide-react";
 
-export default function CheckoutPage({ cart = new Map(), calculateTotal, handleUpdateQuantity, handleRemoveFromCart }) {
+export default function CheckoutPage({ cart, calculateTotal, handleUpdateQuantity, handleRemoveFromCart }) {
   const [userInfo, setUserInfo] = useState({
     name: "",
     email: "",
@@ -14,6 +14,8 @@ export default function CheckoutPage({ cart = new Map(), calculateTotal, handleU
     zip: "",
   });
 
+  const [isLoading, setIsLoading] = useState(false);
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setUserInfo((prevInfo) => ({
@@ -22,14 +24,48 @@ export default function CheckoutPage({ cart = new Map(), calculateTotal, handleU
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Handle form submission (e.g., send data to the server)
-    alert("Order placed successfully!");
-  };
+    setIsLoading(true);
 
-  console.log('Cart in CheckoutPage:', cart); // Debugging statement
-  console.log('Total in CheckoutPage:', calculateTotal()); // Debugging statement
+    const orderData = {
+      ...userInfo,
+      cart: Array.from(cart.values()),
+      total: calculateTotal(),
+    };
+
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        alert("Please log in to place an order.");
+        setIsLoading(false);
+        return;
+      }
+
+      const response = await fetch("http://localhost:5000/api/orders", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(orderData),
+      });
+
+      if (response.ok) {
+        console.log("Order placed successfully!");
+        alert("Order placed successfully!");
+      } else {
+        const errorText = await response.text();
+        console.error("Error placing order:", errorText);
+        alert("Failed to place order. Please try again.");
+      }
+    } catch (error) {
+      console.error("Error placing order:", error);
+      alert("Failed to place order. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <div className="checkout-page">
@@ -125,8 +161,8 @@ export default function CheckoutPage({ cart = new Map(), calculateTotal, handleU
             placeholder="ZIP Code"
             required
           />
-          <button type="submit" className="checkout-button">
-            Place Order
+          <button type="submit" className="checkout-button" disabled={isLoading}>
+            {isLoading ? "Placing Order..." : "Place Order"}
           </button>
         </form>
       </div>
@@ -143,7 +179,7 @@ CheckoutPage.propTypes = {
 
 CheckoutPage.defaultProps = {
   cart: new Map(),
-  calculateTotal: () => 0, // Default function returning 0
-  handleUpdateQuantity: () => {}, // Default empty function
-  handleRemoveFromCart: () => {}, // Default empty function
+  calculateTotal: () => 0,
+  handleUpdateQuantity: () => {},
+  handleRemoveFromCart: () => {},
 };

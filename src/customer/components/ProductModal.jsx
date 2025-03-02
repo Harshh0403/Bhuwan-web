@@ -34,13 +34,7 @@ const ProductModal = ({ product, onClose, handleAddToCart }) => {
             >
               Add to Cart
             </button>
-            <button
-              className="buy-now-button"
-              onClick={() => handleAddToCart(product)}
-              disabled={!product.inStock}
-            >
-              Buy Now
-            </button>
+          
           </div>
         </div>
       </div>

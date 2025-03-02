@@ -123,6 +123,7 @@ export default function AdminPanel() {
   const [loginData, setLoginData] = useState({ username: "", password: "" });
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
+  const [orders, setOrders] = useState([]);
   const [formData, setFormData] = useState({
     name: "",
     price: "",
@@ -159,9 +160,22 @@ export default function AdminPanel() {
       setProducts(response.data || []);
     } catch (error) {
       console.error("Error fetching products:", error);
-      showToast("Failed to fetch products.", "error");
+      if (error.response) {
+        // Server responded with a status other than 2xx
+        console.error("Response data:", error.response.data);
+        showToast(`Failed to fetch products. Server responded with: ${error.response.statusText}`, "error");
+      } else if (error.request) {
+        // Request was made but no response was received
+        console.error("No response received:", error.request);
+        showToast("Failed to fetch products. No response received from the server.", "error");
+      } else {
+        // Something else caused the error
+        console.error("Error message:", error.message);
+        showToast(`Failed to fetch products. Error: ${error.message}`, "error");
+      }
     }
   }, [showToast]);
+  
 
   const fetchCategories = useCallback(async () => {
     try {
@@ -173,12 +187,25 @@ export default function AdminPanel() {
     }
   }, [showToast]);
 
+  const fetchOrders = useCallback(async () => {
+    try {
+      const response = await axios.get("http://localhost:5000/api/orders/all"); // ✅ No token required
+      setOrders(response.data || []);
+    } catch (error) {
+      console.error("Error fetching orders:", error);
+      showToast("Failed to fetch orders.", "error");
+    }
+  }, [showToast]);
+  
+  
+
   useEffect(() => {
     if (isAuthenticated) {
       fetchProducts();
       fetchCategories();
+      fetchOrders();
     }
-  }, [isAuthenticated, fetchProducts, fetchCategories]);
+  }, [isAuthenticated, fetchProducts, fetchCategories, fetchOrders]);
 
   const handleLoginChange = (e) => {
     const { name, value } = e.target;
@@ -457,14 +484,18 @@ export default function AdminPanel() {
   const handleSearch = (e) => {
     setSearchTerm(e.target.value);
   };
-
   const filteredProducts = products.filter(product =>
-    product.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+    product.name && product.name.toLowerCase().includes(searchTerm.toLowerCase())
+);
 
-  const filteredCategories = categories.filter(category =>
-    category.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+const filteredCategories = categories.filter(category =>
+    category.name && category.name.toLowerCase().includes(searchTerm.toLowerCase())
+);
+
+const filteredOrders = orders.filter(order =>
+    order.name && order.name.toLowerCase().includes(searchTerm.toLowerCase())
+);
+
 
   if (!isAuthenticated) {
     return (
@@ -533,6 +564,9 @@ export default function AdminPanel() {
             </TabsTrigger>
             <TabsTrigger isActive={activeTab === "products"} onClick={() => setActiveTab("products")}>
               Products
+            </TabsTrigger>
+            <TabsTrigger isActive={activeTab === "orders"} onClick={() => setActiveTab("orders")}>
+              Orders
             </TabsTrigger>
           </TabsList>
 
@@ -769,6 +803,33 @@ export default function AdminPanel() {
                       </Card>
                     ))}
                   </div>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent isActive={activeTab === "orders"}>
+            <Card>
+              <CardHeader>
+                <CardTitle>Orders</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {filteredOrders.map((order) => (
+                    <div key={order._id} className="border p-4 rounded-lg shadow-sm">
+                      <h4 className="font-semibold">Order by {order.name}</h4>
+                      <p>Email: {order.email}</p>
+                      <p>Total: ${order.total.toFixed(2)}</p>
+                      <h5 className="mt-2 font-medium">Items:</h5>
+                      <ul className="list-disc list-inside">
+                        {order.cart.map((item) => (
+                          <li key={item._id}>
+                            {item.name} - {item.quantity} x ${item.price.toFixed(2)}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  ))}
                 </div>
               </CardContent>
             </Card>
