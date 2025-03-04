@@ -1,3 +1,5 @@
+// 
+
 import React, { useState, useEffect, useCallback } from "react";
 import axios from "axios";
 import "./admin-panel.css";
@@ -175,7 +177,6 @@ export default function AdminPanel() {
       }
     }
   }, [showToast]);
-  
 
   const fetchCategories = useCallback(async () => {
     try {
@@ -196,8 +197,6 @@ export default function AdminPanel() {
       showToast("Failed to fetch orders.", "error");
     }
   }, [showToast]);
-  
-  
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -496,7 +495,6 @@ const filteredOrders = orders.filter(order =>
     order.name && order.name.toLowerCase().includes(searchTerm.toLowerCase())
 );
 
-
   if (!isAuthenticated) {
     return (
       <div className="min-h-screen bg-gray-100 flex items-center justify-center">
@@ -771,7 +769,7 @@ const filteredOrders = orders.filter(order =>
                             />
                             <h4 className="font-semibold">{product.name}</h4>
                             <p className="text-sm text-gray-500">{product.description}</p>
-                            <p className="font-medium">${product.price.toFixed(2)}</p>
+                            <p className="font-medium">₹{product.price.toFixed(2)}</p>
                             <div className="flex items-center justify-between">
                               <Switch
                                 id={`productInStock-${product._id}`}
@@ -819,12 +817,12 @@ const filteredOrders = orders.filter(order =>
                     <div key={order._id} className="border p-4 rounded-lg shadow-sm">
                       <h4 className="font-semibold">Order by {order.name}</h4>
                       <p>Email: {order.email}</p>
-                      <p>Total: ${order.total.toFixed(2)}</p>
+                      <p>Total: ₹{order.total.toFixed(2)}</p>
                       <h5 className="mt-2 font-medium">Items:</h5>
                       <ul className="list-disc list-inside">
                         {order.cart.map((item) => (
                           <li key={item._id}>
-                            {item.name} - {item.quantity} x ${item.price.toFixed(2)}
+                            {item.name} - {item.quantity} x ₹{item.price.toFixed(2)}
                           </li>
                         ))}
                       </ul>

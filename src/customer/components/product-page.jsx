@@ -186,7 +186,7 @@ export default function ProductPage({ cart, setCart }) {
             </div>
             <div className="product-info">
               <h3 className="product-name">{product.name}</h3>
-              <p className="product-price">${product.price.toFixed(2)}</p>
+              <p className="product-price">₹{product.price.toFixed(2)}</p>
               {!product.inStock && (
                 <p className="out-of-stock">Out of Stock</p>
               )}
@@ -282,7 +282,7 @@ export default function ProductPage({ cart, setCart }) {
                     <img src={item.image || "/placeholder.png"} alt={item.name} className="cart-item-image" />
                     <div className="cart-item-details">
                       <h3>{item.name}</h3>
-                      <p>${item.price.toFixed(2)}</p>
+                      <p>₹{item.price.toFixed(2)}</p>
                       <div className="quantity-controls">
                         <button onClick={() => handleUpdateQuantity(item._id, item.quantity - 1)} aria-label="Decrease Quantity">
                           <Minus className="quantity-icon" aria-hidden="true" />
@@ -300,7 +300,7 @@ export default function ProductPage({ cart, setCart }) {
                 ))}
                 <div className="cart-total">
                   <h3>Total:</h3>
-                  <p>${calculateTotal()}</p>
+                  <p>₹{calculateTotal()}</p>
                 </div>
                 <Link to="/checkout">
                   <button className="checkout-button">Proceed to Checkout</button>

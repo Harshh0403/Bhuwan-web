@@ -79,7 +79,7 @@ export default function CheckoutPage({ cart, calculateTotal, handleUpdateQuantit
                 <img src={item.image || "/placeholder.png"} alt={item.name} className="cart-item-image" />
                 <div className="cart-item-details">
                   <h4>{item.name}</h4>
-                  <p>${item.price.toFixed(2)} x {item.quantity}</p>
+                  <p>₹{item.price.toFixed(2)} x {item.quantity}</p>
                   <div className="quantity-controls">
                     <button onClick={() => handleUpdateQuantity(item._id, item.quantity - 1)} aria-label="Decrease Quantity">
                       <Minus className="quantity-icon" aria-hidden="true" />
@@ -100,7 +100,7 @@ export default function CheckoutPage({ cart, calculateTotal, handleUpdateQuantit
           )}
           <div className="total">
             <h4>Total:</h4>
-            <p>${calculateTotal()}</p>
+            <p>₹{calculateTotal()}</p>
           </div>
         </div>
         <form className="checkout-form" onSubmit={handleSubmit}>
